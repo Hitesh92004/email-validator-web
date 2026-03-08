@@ -20,6 +20,7 @@ export default function Home() {
   const [resultCsv, setResultCsv] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [performSmtpCheck, setPerformSmtpCheck] = useState(false);
 
   const parsedTextEmails = useMemo(
     () =>
@@ -40,7 +41,8 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           emails: parsedTextEmails,
-          csvContent
+          csvContent,
+          performSmtpCheck
         })
       });
 
@@ -77,6 +79,16 @@ export default function Home() {
       <h3>Or upload CSV file</h3>
       <UploadBox onFileSelect={setCsvContent} />
 
+      <label style={{ display: 'block', marginTop: 16 }}>
+        <input
+          type="checkbox"
+          checked={performSmtpCheck}
+          onChange={(event) => setPerformSmtpCheck(event.target.checked)}
+          style={{ marginRight: 8 }}
+        />
+        Perform deep SMTP mailbox check (slower, limited to 200 emails/request)
+      </label>
+
       <button
         style={{ marginTop: 16, padding: '10px 16px', cursor: 'pointer' }}
         onClick={handleValidate}
@@ -90,6 +102,9 @@ export default function Home() {
       {results.length > 0 ? (
         <section style={{ marginTop: 24 }}>
           <h2>Validation Results ({results.length})</h2>
+          <p style={{ marginTop: 0, color: '#444' }}>
+            Statuses: VALID, INVALID, DISPOSABLE, INVALID_DOMAIN, UNVERIFIED
+          </p>
           <button
             style={{ marginBottom: 12, padding: '8px 12px', cursor: 'pointer' }}
             onClick={() => downloadCsvFile(resultCsv)}
